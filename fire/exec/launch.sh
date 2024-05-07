@@ -13,7 +13,7 @@ if [ $? -eq 0 ]; then
         echo "================== run app =================="
         $1
     else
-        echo "================== none app =================="
+        echo "==================  No application is specified =================="
         ./run_me
     fi
 fi
