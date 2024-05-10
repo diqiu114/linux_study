@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.c": "c",
+        "kernel.h": "c",
+        "module.h": "c",
+        "const.h": "c",
+        "sysinfo.h": "c",
+        "init.h": "c"
+    }
+}

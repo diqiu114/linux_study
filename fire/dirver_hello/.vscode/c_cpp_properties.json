@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "includePath": [
+                "/home/yzq-linux/Desktop/ebf_linux_kernel/include/linux"
+            ],
+            // "intelliSenseMode": "linux-gcc-x64",
+            // "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c99",
+            "cppStandard": "gnu++14"
+        }
+    ],
+    "version": 4
+}
