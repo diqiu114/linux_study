@@ -18,23 +18,13 @@
 #include <linux/device.h>
 
 #include <linux/platform_device.h>
+#include <linux/gpio/consumer.h>
 
 /*------------------字符设备内容----------------------*/
 #define DEV_NAME "rgb_led"
 #define DEV_CNT (1)
 
-/*定义 led 资源结构体，保存获取得到的节点信息以及转换后的虚拟寄存器地址*/
-struct led_resource
-{
-	struct device_node *device_node; //rgb_led_red的设备树节点
-	void __iomem *virtual_CCM_CCGR;
-	void __iomem *virtual_IOMUXC_SW_MUX_CTL_PAD;
-	void __iomem *virtual_IOMUXC_SW_PAD_CTL_PAD;
-	void __iomem *virtual_DR;
-	void __iomem *virtual_GDIR;
-};
 
-static dev_t led_devno;					 //定义字符设备的设备号
 static struct cdev led_chr_dev;			 //定义字符设备结构体chr_dev
 struct class *class_led;				 //保存创建的类
 struct device *device;					 // 保存创建的设备
@@ -78,48 +68,7 @@ static int led_probe(struct platform_device *pdv)
 
 	printk(KERN_EMERG "\t  match successed  \n");
 
-	// /*获取rgb_led的设备树节点*/
-	// rgb_led_device_node = of_find_node_by_path("/rgb_led");	
-	// if (rgb_led_device_node == NULL)
-	// {
-	// 	printk(KERN_ERR "\t  get rgb_led failed!  \n");
-	// 	return -1;
-	// }
-
-	// /*获取rgb_led节点的红灯子节点*/
-	// led_red.device_node = of_find_node_by_name(rgb_led_device_node,"rgb_led_red");
-	// if (led_red.device_node == NULL)
-	// {
-	// 	printk(KERN_ERR "\n get rgb_led_red_device_node failed ! \n");
-	// 	return -1;
-	// }
-	/*---------------------注册 字符设备部分-----------------*/
-
-	//第一步
-	//采用动态分配的方式，获取设备编号，次设备号为0，
-	//设备名称为rgb-leds，可通过命令cat  /proc/devices查看
-	//DEV_CNT为1，当前只申请一个设备编号
-	ret = alloc_chrdev_region(&led_devno, 0, DEV_CNT, DEV_NAME);
-	if (ret < 0)
-	{
-		printk(KERN_EMERG "fail to alloc led_devno\n");
-		goto alloc_err;
-	}
-	
-	printk(KERN_EMERG "dev master num:%d, sub num:%d\n", MAJOR(led_devno), MINOR(led_devno));
-
-	//第二步
-	//关联字符设备结构体cdev与文件操作结构体file_operations
-	led_chr_dev.owner = THIS_MODULE;
-	cdev_init(&led_chr_dev, &led_chr_dev_fops);
-	//第三步
-	//添加设备至cdev_map散列表中
-	ret = cdev_add(&led_chr_dev, led_devno, DEV_CNT);
-	if (ret < 0)
-	{
-		printk(KERN_EMERG "fail to add cdev\n");
-		goto add_err;
-	}
+	gpiod_get();
 
 	//第四步
 	/*创建类 */
@@ -185,9 +134,10 @@ module_exit(led_platform_driver_exit);
 
 MODULE_LICENSE("GPL");
 
+
 /*
 编译、加载内核模块后 终端会输出内核分配到的主、子设备号（也可以cat /proc/devices）
 由于alloc_chrdev_region不会创建设备文件，
-需要创建： mknod /dev/xxx c 主设备号 次设备号
+需要创建： mknod /dev/xxx c 主设备号 次设备号	
 测试方法：sudo sh -c "echo 'EmbedCharDev test' > /dev/xxx"
 */
