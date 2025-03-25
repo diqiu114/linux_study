@@ -3,7 +3,7 @@
 # ab-y := a.o b.o
 # obj-m += ab.o
 
-obj-m += dir_template.o
+obj-m += drv_template.o
 # 设置app的名字
 app_name = "app_template"
 
