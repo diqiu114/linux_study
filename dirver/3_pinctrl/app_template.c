@@ -1,4 +1,3 @@
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -33,13 +32,11 @@ int main(int argc, char **argv)
 	/* 3. 写文件 */
 	if (0 == strcmp(argv[2], "on"))
 	{
-		printf("on\n");
 		status = 1;
 		write(fd, &status, 1);
 	}
 	else
 	{
-		printf("off\n");
 		status = 0;
 		write(fd, &status, 1);
 	}
