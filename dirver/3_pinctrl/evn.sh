@@ -13,7 +13,9 @@ export CROSS_COMPILE=arm-linux-gnueabihf-
 export PATH=$PATH:/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin
 export MY_KERN_DIR=/home/ubuntu18/Desktop/ebf_linux_kernel/build_image/build
 
-
+cd app
+source evn.sh
+cd ..
 rm -f ./compile_commands.json
 ln -s /home/ubuntu18/Desktop/ebf_linux_kernel/compile_commands.json  ./compile_commands.json
 

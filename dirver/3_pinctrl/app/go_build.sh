@@ -1,6 +1,4 @@
-export MY_NAME="app"
 
-mkdir build
 cd build
 cmake ..
 cmake --build .

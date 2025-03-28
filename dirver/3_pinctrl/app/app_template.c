@@ -4,7 +4,33 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
+
+static void on_off_led(int fd, char *string)
+{
+	printf("sdf\n");
+	int status;
+
+	/* 3. 写文件 */
+	if (0 == strcmp(string, "on"))
+	{
+		status = 0;
+	}
+	else
+	{
+		status = 1;
+	}
+	printf("user--->wite: %d\n", status);
+	write(fd, &status, sizeof(status));
+}
+
+static void delay_ms(int milliseconds) {
+    struct timespec ts;
+    ts.tv_sec = milliseconds / 1000;
+    ts.tv_nsec = (milliseconds % 1000) * 1000000;
+    nanosleep(&ts, NULL);
+}
 
 /*
  * ./ledtest /dev/100ask_led0 on
@@ -13,16 +39,7 @@
 int main(int argc, char **argv)
 {
 	int fd;
-	int status;
-	
-	/* 1. 判断参数 */
-	if (argc != 3) 
-	{
-		printf("Usage: %s <dev> <on | off>\n", argv[0]);
-		return -1;
-	}
 
-	/* 2. 打开文件 */
 	fd = open(argv[1], O_RDWR);
 	if (fd == -1)
 	{
@@ -30,17 +47,19 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	/* 3. 写文件 */
-	if (0 == strcmp(argv[2], "on"))
+	if (argc != 3) 
 	{
-		status = 1;
+		printf("blink led...");
+		int cnt = 10;
+		while (cnt--) {
+			on_off_led(fd, "on");
+			delay_ms(100);
+			on_off_led(fd, "off");
+			delay_ms(100);
+		}
+	} else {
+		on_off_led(fd, argv[2]);
 	}
-	else
-	{
-		status = 0;
-	}
-	printf("user--->wite: %d\n", status);
-	write(fd, &status, sizeof(status));
 	
 	close(fd);
 	
