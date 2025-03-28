@@ -8,21 +8,17 @@
 #include "./my_common.h"
 #include <linux/of_device.h>
 
-static struct class *led_class;
 struct gpio_desc *led_gpio;
 EXPORT_SYMBOL(led_gpio);
 
 // 在这个属性中进行/dev/下设备注册
 int probe(struct platform_device *dev)
 {
-	/* 4.1 设备树中定义有: led-gpios=<...>;	*/
-
     led_gpio = gpiod_get(&dev->dev, "led", 0);
 	if (IS_ERR(led_gpio)) {
 		dev_err(&dev->dev, "Failed to get GPIO for led\n");
 		return PTR_ERR(led_gpio);
 	}
-    
     my_create_dev(dev, led_gpio);
     return 0;
 }

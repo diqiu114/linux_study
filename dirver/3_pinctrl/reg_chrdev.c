@@ -8,7 +8,6 @@
 #include <linux/uaccess.h>
 #include <linux/slab.h>
 #include <linux/platform_device.h>
-#include <linux/gpio/consumer.h>
 #include "./my_common.h"
 
 // 这个文件负责文件操作以及/dev设备文件的创建
@@ -18,12 +17,12 @@ static const char* _dev_name = "a_my_test";
 static struct class *_class;
 struct device* _device;
 struct resource *res;
-struct gpio_desc *led_gpio2;
+struct gpio_desc *_led_gpio;
 
 // 设备和驱动匹配后创建设备文件
 void my_create_dev(struct platform_device *hd, struct gpio_desc *led_gpio)
 {
-    led_gpio2 = led_gpio;
+    _led_gpio = led_gpio;
     // int i = 0;
     printk("%s\n", __FUNCTION__);
     // 获得资源
@@ -71,22 +70,16 @@ ssize_t my_read(struct file * file, char __user * buffer, size_t size, loff_t * 
 ssize_t my_write (struct file * file, const char __user * buffer, size_t size, loff_t * offset)
 {
 	int err;
-    char* temp;
-    temp = (char*)kmalloc(sizeof(buffer) * size, GFP_KERNEL);
-    if(!temp) {
-        printk("%s, %s, %d\n", __FILE__, __FUNCTION__, __LINE__);
-        return -1;
-    }
-    err = copy_from_user(temp, buffer, size);
+    int set_val;
+
+    err = copy_from_user(&set_val, buffer, sizeof(set_val));
     if(IS_ERR_VALUE(err)) {
         printk("%s, %s, %d\n", __FILE__, __FUNCTION__, __LINE__);
         return -1;
     }
 
-    printk("wirte file:%s", temp);
-    kfree(temp);
-    printk("set val 1\n");
-    gpiod_set_value(led_gpio2, 1);
+    printk("wirte file:%d", set_val);
+    gpiod_set_value(_led_gpio, set_val);
 
     return 0;
 }
@@ -98,13 +91,16 @@ int my_open (struct inode * node, struct file * file)
     printk("%s\n", __FUNCTION__);
     name = file->f_path.dentry->d_name;
     printk("name: %s\n", name.name);
+    // 先设置gpio为输出模式
+    gpiod_direction_output(_led_gpio, 0);
     return 0;
 }
 
 int my_release (struct inode *node, struct file *file)
 {
     printk("%s\n", __FUNCTION__);
-
+    // 设置为高阻
+    // gpiod_direction_input(_led_gpio);
     return 0;
 }
 

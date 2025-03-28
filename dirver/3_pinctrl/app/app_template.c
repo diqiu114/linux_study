@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
+
 /*
  * ./ledtest /dev/100ask_led0 on
  * ./ledtest /dev/100ask_led0 off
@@ -12,7 +13,7 @@
 int main(int argc, char **argv)
 {
 	int fd;
-	char status;
+	int status;
 	
 	/* 1. 判断参数 */
 	if (argc != 3) 
@@ -33,13 +34,13 @@ int main(int argc, char **argv)
 	if (0 == strcmp(argv[2], "on"))
 	{
 		status = 1;
-		write(fd, &status, 1);
 	}
 	else
 	{
 		status = 0;
-		write(fd, &status, 1);
 	}
+	printf("user--->wite: %d\n", status);
+	write(fd, &status, sizeof(status));
 	
 	close(fd);
 	
